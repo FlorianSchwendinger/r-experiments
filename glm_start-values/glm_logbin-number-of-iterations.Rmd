@@ -87,7 +87,7 @@ glm_start <- c(-1, 0)
 
 cache_file <- "data/iterations.rds"
 if (file.exists(cache_file)) {
-    msg <- readRDS(cache_file)
+    results <- readRDS(cache_file)
 } else {
     glm_cntrl <- list(maxit = 1000, trace = FALSE)
     results <- vector("list", NROW(df))

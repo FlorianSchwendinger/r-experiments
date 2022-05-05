@@ -136,7 +136,7 @@ glm_start <- c(-1, 0)
 
 cache_file <- "data/iterations.rds"
 if (file.exists(cache_file)) {
-    msg <- readRDS(cache_file)
+    results <- readRDS(cache_file)
 } else {
     glm_cntrl <- list(maxit = 1000, trace = FALSE)
     results <- vector("list", NROW(df))
@@ -166,31 +166,29 @@ if (file.exists(cache_file)) {
 
 ``` r
 df <- as.data.frame(apply(do.call(rbind, results), 2, as.numeric))
-#> Error in do.call(rbind, results): object 'results' not found
 str(df)
-#> 'data.frame':    300000 obs. of  6 variables:
-#>  $ V1: num  2 20 1 6 23 9 1 5 6 1 ...
-#>  $ V2: num  19 1 5 18 5 15 7 14 6 4 ...
-#>  $ V3: num  3 13 2 2 11 7 1 1 4 8 ...
-#>  $ V4: num  6 3 23 2 3 17 7 3 11 22 ...
-#>  $ V5: num  13 10 14 13 4 1 27 12 1 7 ...
-#>  $ V6: num  7 3 5 9 4 1 7 15 22 8 ...
+#> 'data.frame':    300000 obs. of  2 variables:
+#>  $ iter_default: num  6 6 NA 5 6 6 5 NA 5 NA ...
+#>  $ iter_start  : num  4 6 6 5 5 6 5 6 6 5 ...
 ```
 
 ``` r
 table(df[, 1L] == df[, 2L], useNA = "always")
 #> 
 #>  FALSE   TRUE   <NA> 
-#> 284081  15919      0
+#> 139069  76225  84706
 ```
 
 ``` r
 d <- df[df[, 1L] != df[, 2L], ]
 prop.table(table(d[, "iter_default"] > d[, "iter_start"]))
-#> Error in `[.data.frame`(d, , "iter_default"): undefined columns selected
+#> 
+#>     FALSE      TRUE 
+#> 0.1321862 0.8678138
 ```
 
 ``` r
 boxplot(d[, "iter_default"] - d[, "iter_start"], horizontal = TRUE, outline = FALSE)
-#> Error in `[.data.frame`(d, , "iter_default"): undefined columns selected
 ```
+
+![](glm_logbin-number-of-iterations_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
