@@ -173,14 +173,14 @@ str(df)
 ```
 
 ``` r
-table(df[, 1L] == df[, 2L], useNA = "always")
+table(df[, "iter_default"] == df[, "iter_start"], useNA = "always")
 #> 
 #>  FALSE   TRUE   <NA> 
 #> 139069  76225  84706
 ```
 
 ``` r
-d <- df[df[, 1L] != df[, 2L], ]
+d <- df[df[, "iter_default"] != df[, "iter_start"], ]
 prop.table(table(d[, "iter_default"] > d[, "iter_start"]))
 #> 
 #>     FALSE      TRUE 
