@@ -1,0 +1,56 @@
+---
+title: "GLM - Log-Binomial Start Values"
+output:
+    github_document:
+        number_sections: true
+        html_preview: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  error = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(lbreg)
+data("Birth", "Caesarian", "Death", "Evans", "Heart", "PCS", package = "lbreg")
+```
+
+
+```{r}
+glm(lowbw ~ ., binomial("log"), data = Birth)
+```
+
+```{r}
+glm(cbind(n1, n0) ~ ., binomial("log"), data = Caesarian)
+```
+
+```{r}
+glm(death ~ ., binomial("log"), data = Death)
+```
+
+```{r}
+glm(CDH ~ ., binomial("log"), data = Evans)
+```
+
+```{r}
+glm(Heart ~ ., binomial("log"), data = Heart)
+```
+
+Data preparation as shown in the **lbreg** package.
+
+```{r}
+w <- PCS
+w <- w[, -1]
+w$race <- factor(w$race)
+w$dpros <- factor(w$dpros)
+w$dcaps <- factor(w$dcaps)
+glm(tumor ~ ., binomial("log"), data = w)
+```
+
+
+So for the examples from the **lbreg** package `glm` fails to find valid
+start values in 4 out of 6 cases.
