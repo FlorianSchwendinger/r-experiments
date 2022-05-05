@@ -1,0 +1,112 @@
+---
+title: "GLM - Log-Binomial Start Values"
+output:
+    github_document:
+        number_sections: true
+        html_preview: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  error = TRUE,
+  comment = "#>"
+)
+```
+
+## Build `3 x 2` tables
+
+```{r, build_tables}
+ofi <- "data/crosstables_2x3.rds"
+if (file.exists(ofi)) {
+    df <- readRDS(ofi)
+} else {
+    number_of_distinct_tables <- function(n) factorial(n - 1) / (factorial(6 - 1) * factorial(n - 6))
+    number_of_distinct_tables(50)
+
+    ##
+    ## write my own version
+    ##
+    nobs <- 50L
+    seqi <- 1:45
+
+    xnrow <- number_of_distinct_tables(50)
+    xnrow / 1000
+    df <- as.data.frame(matrix(0, nrow = xnrow, ncol = 6))
+    iter <- 0L
+
+    for (i1 in seqi) {
+      for (i2 in seqi) {
+        for (i3 in seqi) {
+          for (i4 in seqi) {
+            for (i5 in seqi) {
+              for (i6 in seqi) {
+                if ( (i1 + i2 + i3 + i4 + i5 + i6) == nobs ) {
+                  iter <- iter + 1L
+                  cat(100 * iter / xnrow, "%  ", iter, "\n")
+                  df[iter, ] <- c(i1, i2, i3, i4, i5, i6)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    saveRDS(df, ofi)
+}
+
+cat("Number of examples:", format(NROW(df), big.mark = ","), "\n")
+head(df)
+```
+
+## Functions
+```{r, build_data}
+build_data <- function(v) {
+    v <- unname(unlist(v))
+    ## we assume the following order
+    ##          -1   0   1
+    ## y == 0:   1   2   3
+    ## y == 1:   4   5   6
+    x <- c(rep.int(-1, v[1]), rep.int(0, v[2]), rep.int(1, v[3]),
+           rep.int(-1, v[4]), rep.int(0, v[5]), rep.int(1, v[6]))
+    y <- c(rep.int(0, sum(v[1:3])), rep.int(1, sum(v[4:6])))
+    cbind(data.frame(y = y), x)
+}
+
+build_data(df[1L, ])
+```
+
+## Run experiment
+Take a random sample so it doesn't take that long.
+```{r, run_experiment}
+set.seed(732480991L)
+size <- 300000L
+i <- sample.int(NROW(df), size = size)
+df <- df[i, ]
+
+cache_file <- "data/messages.rds"
+if (file.exists(cache_file)) {
+    msg <- readRDS( cache_file)
+} else {
+    glm_cntrl <- list(maxit = 1, trace = FALSE)
+    msg <- character(NROW(df))
+    for (i in seq_len(NROW(df))) {
+        if ((i %% 100) == 0L) {
+            print(100 * i / NROW(df))
+        }
+        dat <- build_data(df[i, ])
+        result <- tryCatch(
+            suppressWarnings(glm(y ~ ., family = binomial("log"), control = glm_cntrl, data = dat)),
+            error = function(e) as.character(e)
+        )
+        if (inherits(result, "glm")) {
+            msg[i] <- "OK"
+        } else {
+            msg[i] <- result
+        }
+    }
+    saveRDS(msg, cache_file)
+}
+
+prop.table(table(msg))
+```
