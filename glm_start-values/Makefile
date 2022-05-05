@@ -5,3 +5,5 @@ glm-start-values:
 examples:
 	R -e 'rmarkdown::render("glm_logbin_start-values-lbreg.Rmd", clean = FALSE)'
 
+iter:
+	R -e 'rmarkdown::render("glm_logbin-number-of-iterations.Rmd", clean = FALSE)'
